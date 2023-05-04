@@ -31,6 +31,8 @@ SOURCE_URL = "s3n://{0}:{1}@{2}".format(ACCESS_KEY, ENCODED_SECRET_KEY, AWS_S3_B
 # Mount the drive
 dbutils.fs.mount(SOURCE_URL, MOUNT_NAME)
 
+# COMMAND ----------
+
 # File location and type
 # Asterisk(*) indicates reading all the content of the specified file that have .json extension
 file_location_pin = "/mnt/pinterest-bucket/topics/124df56aef51.pin/partition=0/*.json" 

@@ -60,3 +60,39 @@ df_user = spark.read.format(file_type) \
 display(df_pin)
 display(df_geo)
 display(df_user)
+
+# COMMAND ----------
+
+def get_follower_count_multiplier(df):
+    return df.withColumn("multiplier",\
+    "1" * \
+    regexp_replace(\
+        regexp_replace(\
+            regexp_replace(col("follower_count"), "[0123456789]", ""),\
+            "[k]", "1000"),\
+        "[M]", "1000000")\
+    )\
+    .na.fill(value=1,subset=["multiplier"])
+
+def follower_count_to_int(df):
+    return df.withColumn("follower_count", regexp_replace(col("follower_count"), "[A-Za-z]", "").cast("int") * col("multiplier"))
+
+df_pin = df_pin.select([when(col(c)=="",None).otherwise(col(c)).alias(c) for c in df_pin.columns])\
+    .withColumn("description", when(col("description")=="No description available Story format" ,None).otherwise(col("description")))\
+    .withColumn("follower_count", when(col("follower_count")=="User Info Error" ,None).otherwise(col("follower_count")))\
+    .transform(get_follower_count_multiplier)\
+    .transform(follower_count_to_int)\
+    .drop("multiplier")\
+    .withColumn("downloaded", col("downloaded").cast("int"))\
+    .withColumn("index", col("index").cast("int"))\
+    .withColumnRenamed("index", "ind")\
+    .withColumn("save_location", regexp_replace(col("save_location"), "Local save in ", ""))\
+    .withColumn("image_src", when(col("image_src")=="Image src error." ,None).otherwise(col("image_src")))\
+    .withColumn("tag_list", when(col("tag_list")=="N,o, ,T,a,g,s, ,A,v,a,i,l,a,b,l,e" ,None).otherwise(col("tag_list")))\
+    .withColumn("title", when(col("title")=="No Title Data Available" ,None).otherwise(col("title")))
+
+df_pin = df_pin.select("ind", "unique_id", "title", "description", "follower_count", "poster_name", "tag_list", "is_image_or_video", "image_src", "save_location", "category")
+
+
+display(df_pin)
+ 

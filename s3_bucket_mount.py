@@ -109,3 +109,17 @@ df_geo = df_geo.select([when(col(c)=="",None).otherwise(col(c)).alias(c) for c i
 df_geo = df_geo.select("ind", "country", "coordinates", "timestamp")
 
 ## display(df_geo)
+
+# COMMAND ----------
+
+df_user = df_user.select([when(col(c)=="",None).otherwise(col(c)).alias(c) for c in df_user.columns])\
+    .withColumn("user_name",concat_ws(" ", col("first_name"), col("last_name")))\
+    .drop("first_name")\
+    .drop("last_name")\
+    .withColumn("date_joined", to_timestamp("date_joined", 'MM/dd/yyyy, HH:mm:ss'))\
+    .withColumn("ind", col("ind").cast("int"))\
+    .withColumn("age", col("age").cast("int"))
+
+df_user = df_user.select("ind", "user_name", "age", "date_joined")
+
+## display(df_user)

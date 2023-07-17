@@ -96,3 +96,16 @@ df_pin = df_pin.select("ind", "unique_id", "title", "description", "follower_cou
 
 display(df_pin)
  
+
+# COMMAND ----------
+
+df_geo = df_geo.select([when(col(c)=="",None).otherwise(col(c)).alias(c) for c in df_geo.columns])\
+    .withColumn("coordinates",array(col("latitude"), col("longitude")))\
+    .drop("latitude")\
+    .drop("longitude")\
+    .withColumn("timestamp", to_timestamp("timestamp", 'MM/dd/yyyy, HH:mm:ss'))\
+    .withColumn("ind", col("ind").cast("int"))
+
+df_geo = df_geo.select("ind", "country", "coordinates", "timestamp")
+
+## display(df_geo)

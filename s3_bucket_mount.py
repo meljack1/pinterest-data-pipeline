@@ -167,3 +167,36 @@ df_most_followed_user_by_country = df_geo.select(col("ind"), col("country"))\
 display(df_most_followed_user_by_country)
 
 df_most_followers_country = df_most_followed_user_by_country.orderBy(col("follower_count").desc()).limit(1).show()
+
+# COMMAND ----------
+
+def get_age_category(age):
+    if age < 25:
+        return "18-24"
+    elif age < 36:
+        return "25-35"
+    elif age < 51:
+        return "36-50"
+    elif age >= 51:
+        return "50+"
+    else:
+        return None
+    
+get_age_category_udf = udf(get_age_category)   
+
+df_most_popular_category_by_age = df_user.select(col("ind"), col("age"))\
+    .join(df_pin.select(col("ind"), col("category")), df_user["ind"] == df_pin["ind"])\
+    .drop("ind")\
+    .withColumn("age_group", get_age_category_udf(col("age")))\
+    .drop("age")\
+    .groupBy("age_group", "category")\
+    .agg(count('category').alias("category_count"))\
+    .orderBy(col("category").asc())
+
+display(df_most_popular_category_by_age)
+
+df_most_popular_category_by_age.select("age_group", "category", "category_count")\
+    .groupBy("age_group")\
+    .agg(max("category").alias("category"),\
+        max("category_count").alias("category_count"))\
+    .orderBy(col("age_group").asc()).show()

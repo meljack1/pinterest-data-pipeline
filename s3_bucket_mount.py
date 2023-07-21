@@ -137,3 +137,17 @@ df_most_popular_category.select("country", "category", "category_count")\
     .agg(max("category").alias("category"),\
         max("category_count").alias("category_count"))\
     .orderBy(col("country").asc()).show()
+
+# COMMAND ----------
+
+df_most_popular_category_by_year = df_geo.select(col("ind"), year("timestamp").alias("post_year"))\
+    .join(df_pin.select(col("ind"), col("category")), df_geo["ind"] == df_pin["ind"])\
+    .drop("ind")\
+    .groupBy("post_year", "category")\
+    .agg(count('category').alias("category_count"))
+
+df_most_popular_category_by_year.select("post_year", "category", "category_count")\
+    .groupBy("post_year")\
+    .agg(max("category").alias("category"),\
+        max("category_count").alias("category_count"))\
+    .orderBy(col("post_year").asc()).show()

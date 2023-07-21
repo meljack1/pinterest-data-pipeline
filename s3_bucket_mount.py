@@ -151,3 +151,19 @@ df_most_popular_category_by_year = df_geo.select(col("ind"), year("timestamp").a
 ##    .agg(max("category").alias("category"),\
 ##        max("category_count").alias("category_count"))\
 ##    .orderBy(col("post_year").asc()).show()
+
+
+# COMMAND ----------
+
+from pyspark.sql.window import Window
+
+df_most_followed_user_by_country = df_geo.select(col("ind"), col("country"))\
+    .join(df_pin.select(col("ind"), col("poster_name"), col("follower_count")), df_geo["ind"] == df_pin["ind"])\
+    .drop("ind")\
+    .groupBy("country", "poster_name")\
+    .agg(max("follower_count").alias("follower_count"))\
+    .orderBy(col("country").asc())
+
+display(df_most_followed_user_by_country)
+
+df_most_followers_country = df_most_followed_user_by_country.orderBy(col("follower_count").desc()).limit(1).show()

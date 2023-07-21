@@ -200,3 +200,18 @@ df_most_popular_category_by_age.select("age_group", "category", "category_count"
     .agg(max("category").alias("category"),\
         max("category_count").alias("category_count"))\
     .orderBy(col("age_group").asc()).show()
+
+# COMMAND ----------
+
+
+
+df_median_follower_count_by_age = df_user.select(col("ind"), col("age"))\
+    .join(df_pin.select(col("ind"), col("follower_count")), df_user["ind"] == df_pin["ind"])\
+    .drop("ind")\
+    .withColumn("age_group", get_age_category_udf(col("age")))\
+    .drop("age")\
+    .groupBy("age_group")\
+    .agg(percentile_approx("follower_count", 0.5).alias("median_follower_count"))\
+    .orderBy(col("age_group").asc())
+
+display(df_median_follower_count_by_age)

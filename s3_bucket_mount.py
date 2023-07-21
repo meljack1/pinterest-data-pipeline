@@ -123,3 +123,17 @@ df_user = df_user.select([when(col(c)=="",None).otherwise(col(c)).alias(c) for c
 df_user = df_user.select("ind", "user_name", "age", "date_joined")
 
 ## display(df_user)
+
+# COMMAND ----------
+
+df_most_popular_category = df_geo.select(col("ind"), col("country"))\
+    .join(df_pin.select(col("ind"), col("category")), df_geo["ind"] == df_pin["ind"])\
+    .drop("ind")\
+    .groupBy("country", "category")\
+    .agg(count('category').alias("category_count"))
+
+df_most_popular_category.select("country", "category", "category_count")\
+    .groupBy("country")\
+    .agg(max("category").alias("category"),\
+        max("category_count").alias("category_count"))\
+    .orderBy(col("country").asc()).show()

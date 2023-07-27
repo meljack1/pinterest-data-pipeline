@@ -233,3 +233,16 @@ df_median_follower_count_by_year = df_user.select(col("ind"), year("date_joined"
     .orderBy(col("year_joined").asc())
 
 display(df_median_follower_count_by_year)
+
+# COMMAND ----------
+
+df_median_follower_count_by_age_and_year = df_user.select(col("ind"), col("age"), year("date_joined").alias("year_joined"))\
+    .join(df_pin.select(col("ind"), col("follower_count")), df_user["ind"] == df_pin["ind"])\
+    .drop("ind")\
+    .withColumn("age_group", get_age_category_udf(col("age")))\
+    .drop("age")\
+    .groupBy("age_group", "year_joined")\
+    .agg(percentile_approx("follower_count", 0.5).alias("median_follower_count"))\
+    .orderBy(col("age_group").asc(), col("year_joined").asc())
+
+display(df_median_follower_count_by_age_and_year)

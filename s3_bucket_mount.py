@@ -222,3 +222,14 @@ df_users_joined_by_year = df_user.select(col("ind"), year("date_joined").alias("
     .orderBy(col("year_joined").asc())
 
 display(df_users_joined_by_year)
+
+# COMMAND ----------
+
+df_median_follower_count_by_year = df_user.select(col("ind"), year("date_joined").alias("year_joined"))\
+    .join(df_pin.select(col("ind"), col("follower_count")), df_user["ind"] == df_pin["ind"])\
+    .drop("ind")\
+    .groupBy("year_joined")\
+    .agg(percentile_approx("follower_count", 0.5).alias("median_follower_count"))\
+    .orderBy(col("year_joined").asc())
+
+display(df_median_follower_count_by_year)

@@ -203,8 +203,6 @@ df_most_popular_category_by_age.select("age_group", "category", "category_count"
 
 # COMMAND ----------
 
-
-
 df_median_follower_count_by_age = df_user.select(col("ind"), col("age"))\
     .join(df_pin.select(col("ind"), col("follower_count")), df_user["ind"] == df_pin["ind"])\
     .drop("ind")\
@@ -215,3 +213,12 @@ df_median_follower_count_by_age = df_user.select(col("ind"), col("age"))\
     .orderBy(col("age_group").asc())
 
 display(df_median_follower_count_by_age)
+
+# COMMAND ----------
+
+df_users_joined_by_year = df_user.select(col("ind"), year("date_joined").alias("year_joined"))\
+    .groupBy("year_joined")\
+    .agg(count("ind").alias("number_users_joined"))\
+    .orderBy(col("year_joined").asc())
+
+display(df_users_joined_by_year)

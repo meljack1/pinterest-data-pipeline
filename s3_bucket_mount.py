@@ -29,7 +29,7 @@ MOUNT_NAME = "/mnt/pinterest-bucket"
 # Source url
 SOURCE_URL = "s3n://{0}:{1}@{2}".format(ACCESS_KEY, ENCODED_SECRET_KEY, AWS_S3_BUCKET)
 # Mount the drive
-dbutils.fs.mount(SOURCE_URL, MOUNT_NAME)
+#dbutils.fs.mount(SOURCE_URL, MOUNT_NAME)
 
 # COMMAND ----------
 

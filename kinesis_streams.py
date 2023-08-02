@@ -167,11 +167,16 @@ df_pin_clean.writeStream \
   .option("checkpointLocation", "/tmp/kinesis/_checkpoints/") \
   .table("124df56aef51_pin_table")
 
+# COMMAND ----------
+
 df_geo_clean.writeStream \
   .format("delta") \
   .outputMode("append") \
   .option("checkpointLocation", "/tmp/kinesis/_checkpoints/") \
   .table("124df56aef51_geo_table")
+
+
+# COMMAND ----------
 
 df_user_clean.writeStream \
   .format("delta") \

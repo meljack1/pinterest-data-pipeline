@@ -1,0 +1,13 @@
+HOST: host
+USER: user
+PASSWORD: password
+DATABASE: db
+PORT: 3306
+
+PIN_URL: url
+GEO_URL: url
+USER_URL: url
+
+PIN_STREAMING_URL: url
+GEO_STREAMING_URL: url
+USER_STREAMING_URL: url

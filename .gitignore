@@ -1,4 +1,2 @@
 *.pem
-user_posting_emulation.py
-test.py
-user_posting_emulation_streaming.py
+db_creds.yaml

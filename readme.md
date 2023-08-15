@@ -11,6 +11,59 @@ This data pipeline collects data from Pinterest to be cleaned and analysed via t
 
 An example format for the database credentials read in the posting emulation files can be found at ```db_creds.yaml.example```. Before attempting to run the posting emulation files, please copy ```db_creds.yaml.example``` and add the correct database credentials and API URLs, and rename the file to ```db_creds.yaml```.
 
+## Local Installation Instructions
+In order to replicate this project, you will require an AWS account. The following AWS services are utilised:
+- EC2 Linux instance
+- S3 Bucket
+- API gateway
+- MSK
+- Kinesis
+
+### Clone repo to local machine
+```
+git clone https://github.com/meljack1/pinterest-data-pipeline.git
+```
+
+### Create virtual environment using Conda
+``` 
+conda create --name pinterest --file requirements.txt
+conda activate pinterest
+```
+
+### Create EC2 instance
+Create an EC2 instance with the following settings:
+- Software Image: Amazon Linux 2 AMI(HVM) - Kernel 5.10, SSD Volume Type
+- Instance Type: t3.micro
+
+Create a key pair and save it locally.
+
+In the EC2 instance summary page, make a note of your public IPv4 DNS. This will be required to connect to your EC2 instance.
+
+### Launch and configure EC2 instance
+```
+# Launch EC2 instance
+ssh -i <key-pair-name> ec2-user@<public-dns> 
+```
+
+You will need to install the following to your EC2 instance:
+- ["Apache Kafka"]('https://archive.apache.org/dist/kafka/3.5.1/kafka_2.13-3.5.1.tgz')
+- ["IAM MSK authentication package"]('https://github.com/aws/aws-msk-iam-auth')
+- ["Confluent.io Amazon S3 Connector"]('https://d1i4a15mxbxib1.cloudfront.net/api/plugins/confluentinc/kafka-connect-s3/versions/10.0.3/confluentinc-kafka-connect-s3-10.0.3.zip')
+
+```
+# Set classpath
+export CLASSPATH=/home/ec2-user/kafka_2.13-3.5.1/libs/aws-msk-iam-auth-1.1.5-all.jar
+
+# Launch Confluent server
+cd confluent-7.2.0/bin/
+./kafka-rest-start /home/ec2-user/confluent-7.2.0/etc/kafka-rest/kafka-rest.properties
+```
+
+### Create API Endpoints
+In the AWS API gateway, you will require the following API endpoints: 
+
+!['API Structure'](./images/api.PNG)
+
 ## Batch Processing
 ### Kafka and EC2
 As this was a cloud-based project, Apache Kafka was configured and run via an Amazon EC2 instance. In order to connect to the EC2 client machine, I created a .pem file containing my private key. I installed Kafka and the MSK authentication package onto the client machine, and configured my AWS IAM role to authenticate to an MSK cluster which would contain my topics:

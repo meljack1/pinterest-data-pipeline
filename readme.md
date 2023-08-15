@@ -64,6 +64,15 @@ In the AWS API gateway, you will require the following API endpoints:
 
 !['API Structure'](./images/api.PNG)
 
+### Run posting emulation scripts
+```
+# Batch
+python user_posting_emulation.py
+
+# Streaming
+python user_posting_emulation_streaming.py
+```
+
 ## Batch Processing
 ### Kafka and EC2
 As this was a cloud-based project, Apache Kafka was configured and run via an Amazon EC2 instance. In order to connect to the EC2 client machine, I created a .pem file containing my private key. I installed Kafka and the MSK authentication package onto the client machine, and configured my AWS IAM role to authenticate to an MSK cluster which would contain my topics:

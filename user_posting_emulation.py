@@ -1,12 +1,12 @@
-import requests
-from time import sleep
-import random
-from multiprocessing import Process
 import boto3
 import json
+import random
+import requests
 import sqlalchemy
-from sqlalchemy import text
 from awsdb import AWSDBConnector
+from multiprocessing import Process
+from sqlalchemy import text
+from time import sleep
 
 
 random.seed(100)

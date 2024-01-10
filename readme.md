@@ -107,8 +107,8 @@ df_most_popular_category_by_age = df_user.select(col("ind"), col("age"))\
 
 df_most_popular_category_by_age.select("age_group", "category", "category_count")\
     .groupBy("age_group")\
-    .agg(max("category").alias("category"),\
-        max("category_count").alias("category_count"))\
+    .agg(max("category_count").alias("category_count"))\
+    .join(df_most_popular_category_by_age, on=['age_group','category_count'], how='inner')\
     .orderBy(col("age_group").asc()).show()
 ```
 !['Most popular category by age group'](./images/pyspark-1.PNG)

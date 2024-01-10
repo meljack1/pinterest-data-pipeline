@@ -90,16 +90,46 @@ Using an AWS Gateway REST API, I configured a Kafka REST proxy integration metho
 Now that I had obtained and stored some data for each of my topics, I mounted the S3 bucket containing the data to a Databricks account. Using PySpark, I was able to create dataframes for the data from each topic, and perform cleaning and processing on each dataframe. 
 
 Using the cleaned data, I was able to analyse the data to obtain useful information and statistics. 
+
 1. The most popular category in each country
 1. The most popular category each year
 1. The user with the most followers in each country
 1. The most popular category with each age group
-1. The median follower count with each age group
+``` 
+df_most_popular_category_by_age = df_user.select(col("ind"), col("age"))\
+    .join(df_pin.select(col("ind"), col("category")), df_user["ind"] == df_pin["ind"])\
+    .drop("ind")\
+    .withColumn("age_group", get_age_category_udf(col("age")))\
+    .drop("age")\
+    .groupBy("age_group", "category")\
+    .agg(count('category').alias("category_count"))\
+    .orderBy(col("category").asc())
+
+df_most_popular_category_by_age.select("age_group", "category", "category_count")\
+    .groupBy("age_group")\
+    .agg(max("category").alias("category"),\
+        max("category_count").alias("category_count"))\
+    .orderBy(col("age_group").asc()).show()
+```
+!['Most popular category by age group'](./images/pyspark-1.PNG)
+
+5. The median follower count with each age group
 1. The number of users joining each year
 1. The median follower count of users based on their joining year
 1. The median follower count of users based on their joining year and age group
+```
+df_median_follower_count_by_age_and_year = df_user.select(col("ind"), col("age"), year("date_joined").alias("year_joined"))\
+    .join(df_pin.select(col("ind"), col("follower_count")), df_user["ind"] == df_pin["ind"])\
+    .drop("ind")\
+    .withColumn("age_group", get_age_category_udf(col("age")))\
+    .drop("age")\
+    .groupBy("age_group", "year_joined")\
+    .agg(percentile_approx("follower_count", 0.5).alias("median_follower_count"))\
+    .orderBy(col("age_group").asc(), col("year_joined").asc())
+```
+!['Median follower count by joining year and age group'](./images/pyspark-2.PNG)
 
-These analyses can be found in ```s3_bucket_mount.py```. Additionally, I created an Airflow DAG to trigger the running of this Databricks Notebook, which can be found in ```124df56aef51_dag.py```.
+These analyses can be found in ```pyspark_analysis.py```. Additionally, I created an Airflow DAG to trigger the running of this Databricks Notebook, which can be found in ```124df56aef51_dag.py```.
 
 ## Stream Processing & Kinesis
 In addition to the batch processing methods, I created three Kinesis Data Streams (for pin, geo and user data respectively), and configured my API to allow it to list, create, describe and delete streams in Kinesis, as well as add records to streams in Kinesis. 

@@ -2,6 +2,7 @@ import json
 import requests
 import random
 from sqlalchemy import text
+import datetime
 
 random.seed(100)
 
@@ -9,7 +10,8 @@ class EmulationFunctions:
     def __init__(self, headers, connection, db_creds):
         self.headers = headers
         self.connection = connection
-        self.url = db_creds['URL']
+        self.db_creds = db_creds
+        self.url = self.db_creds['URL']
         self.streaming_url = db_creds['STREAMING_URL']
         self.keys = {
             "pin": ['index', 'unique_id', 'title', 'description', 'poster_name', 'follower_count', 'tag_list', 'is_image_or_video', 'image_src', 'downloaded', 'save_location', 'category'],
@@ -29,9 +31,7 @@ class EmulationFunctions:
 
         for row in selected_row:
             result = dict(row._mapping)
-            value = {key:result[key] for key in keys}
-            if(value["date_joined"]):
-                value["date_joined"] = value["date_joined"].strftime("%m/%d/%Y, %H:%M:%S")
+            value = {key: (result[key].strftime("%m/%d/%Y, %H:%M:%S") if isinstance(result[key], datetime.date) else result[key]) for key in keys }
             data = json.dumps({
                 "records": [
                     {
@@ -53,9 +53,7 @@ class EmulationFunctions:
 
         for row in selected_row:
             result = dict(row._mapping)
-            value = {key:result[key] for key in keys}
-            if(value["date_joined"]):
-                value["date_joined"] = value["date_joined"].strftime("%m/%d/%Y, %H:%M:%S")
+            value = {key: (result[key].strftime("%m/%d/%Y, %H:%M:%S") if isinstance(result[key], datetime.date) else result[key]) for key in keys }
             data = json.dumps({
                 "StreamName": "streaming-124df56aef51-pin",
                 "Data": 

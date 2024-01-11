@@ -1,8 +1,7 @@
-import requests
 from time import sleep
 from awsdb import AWSDBConnector
 import random
-import emulation_functions as EmulationFunctions
+from emulation_functions import EmulationFunctions
 
 random.seed(100)
 new_connector = AWSDBConnector()
@@ -18,9 +17,9 @@ def run_infinite_post_data_loop():
             emulation_functions = EmulationFunctions(headers, connection, db_creds)
 
             # Get streaming data for pin, geo and user tables and post to connection
-            emulation_functions.get_json_data('pin', 'pinterest_data')
-            emulation_functions.get_json_data('geo', 'geolocation_data')
-            emulation_functions.get_json_data('user', 'user_data')
+            emulation_functions.get_streaming_data('pin', 'pinterest_data')
+            emulation_functions.get_streaming_data('geo', 'geolocation_data')
+            emulation_functions.get_streaming_data('user', 'user_data')
 
 
 if __name__ == "__main__":
